@@ -1,7 +1,7 @@
 import sqlalchemy
 import sqlalchemy as sq
 from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import declarative_base, Session
 from sqlalchemy.orm import sessionmaker
 
 Base = declarative_base()
@@ -88,7 +88,7 @@ engine = create_engine('postgresql://postgres:Ifubin63@localhost:5432/hw_db_4')
 Base.metadata.create_all(bind=engine)
 
 Session = sessionmaker(bind=engine)
-session = Session()
+session: Session = Session()
 
 publ_1 = Publisher(1,'Лавкрафт')
 publ_2 = Publisher(2,'Эдгар По')
@@ -141,11 +141,26 @@ session.add(sale_3)
 session.add(sale_4)
 
 session.commit()
+def get_shops(data):
+    q = session.query(
+        Book.title, Shop.name, Sale.price, Sale.date_sale,).\
+        select_from(Shop).\
+        join(Shop.id_shop == Stock.id_shop).\
+        join(Book.id_book == Stock.id_book).\
+        join(Publisher.id_publ == Book.id_publ).\
+        join(Sale.id_stock == Stock.id_stock)
+    if data.isdigit():
+         data = session.query(Publisher).filter(Publisher.id_publ == Publisher.name).all()
+    else:
+        data = session.query(Publisher).filter(Publisher.name == Publisher.id_publ).all()
+    for Book.title, Shop.name, Sale.price, Sale.date_sale in q:
+        print(f"{Book.title: <40} | {Shop.name: <10} | {Sale.price: <8} | {Sale.date_sale.strftime('%d-%m-%Y')}")
 
-zapros = input()
-result = session.query(Book, Shop, Sale).filter(Publisher.name == zapros).filter(Publisher.id_publ == Book.id_publ).filter(Book.id_publ == Stock.id_book).filter(Stock.id_shop == Shop.id_shop).filter(Stock.id_stock == Sale.id_stock).all()
-for r in result:
-    print(f'{r[0]} | {r[1]} | {r[2]}')
+
+if __name__ == '__main__':
+    request = input()
+    get_shops(request)
+
 
 
 session.close()
