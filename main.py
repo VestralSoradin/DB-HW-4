@@ -6,7 +6,6 @@ from sqlalchemy.orm import sessionmaker
 
 Base = declarative_base()
 
-
 class Publisher(Base):
     __tablename__ = 'publisher'
     id_publ = sq.Column('id_publ', sq.Integer, primary_key=True)
@@ -84,7 +83,8 @@ class Sale(Base):
 
 
 
-engine = create_engine('postgresql://postgres:Ifubin63@localhost:5432/hw_db_4')
+engine = create_engine('postgresql://postgres:@localhost:5432/hw_db_4')
+Base.metadata.drop_all(bind=engine)
 Base.metadata.create_all(bind=engine)
 
 Session = sessionmaker(bind=engine)
@@ -141,26 +141,18 @@ session.add(sale_3)
 session.add(sale_4)
 
 session.commit()
-def get_shops(data):
-    q = session.query(
-        Book.title, Shop.name, Sale.price, Sale.date_sale,).\
-        select_from(Shop).\
-        join(Shop.id_shop == Stock.id_shop).\
-        join(Book.id_book == Stock.id_book).\
-        join(Publisher.id_publ == Book.id_publ).\
-        join(Sale.id_stock == Stock.id_stock)
-    if data.isdigit():
-         data = session.query(Publisher).filter(Publisher.id_publ == Publisher.name).all()
-    else:
-        data = session.query(Publisher).filter(Publisher.name == Publisher.id_publ).all()
-    for Book.title, Shop.name, Sale.price, Sale.date_sale in q:
-        print(f"{Book.title: <40} | {Shop.name: <10} | {Sale.price: <8} | {Sale.date_sale.strftime('%d-%m-%Y')}")
+writer = input('Введите имя или ID автора ')
 
+query = session.query(Book.title, Shop.name, Sale.price, Sale.date_sale
+                      ).join(Publisher).join(Stock).join(Shop).join(Sale)
+if writer.isdigit():
+    query = query.filter(Publisher.id_publ == writer).all()
+else:
+    query = query.filter(Publisher.name == writer).all()
 
-if __name__ == '__main__':
-    request = input()
-    get_shops(request)
-
+for Book.title, Shop.name, Sale.price, Sale.date_sale in query:
+    print(f"{Book.title: <40} | {Shop.name: <10} | {Sale.price: <8} | "
+          f"{Sale.date_sale.strftime('%d-%m-%Y')}")
 
 
 session.close()
