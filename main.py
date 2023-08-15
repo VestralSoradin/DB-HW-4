@@ -150,9 +150,8 @@ if writer.isdigit():
 else:
     query = query.filter(Publisher.name == writer).all()
 
-for Book.title, Shop.name, Sale.price, Sale.date_sale in query:
-    print(f"{Book.title: <40} | {Shop.name: <10} | {Sale.price: <8} | "
-          f"{Sale.date_sale.strftime('%d-%m-%Y')}")
+for title, name, price, date_sale in query:
+    print(f"{title: <40} | {name: <10} | {price: <8} | {date_sale.strftime('%d-%m-%Y')}")
 
 
 session.close()
